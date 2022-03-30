@@ -1,4 +1,10 @@
+// Code voor een miniatuur kolomboor, aangestuurd in c++.
+// Alle includes van de Library's zijn te vinden in de windows.hpp
+//
+// Compiling wordt gedaan in de terminal met de volgende command:
 // g++ -Wall -pthread -lncurses -o programma main.cpp windows.cpp parser.cpp runtime.cpp hardware.cpp player.cpp -lbcm2835
+//
+// Uitvoeren van het programma wordt gedaan met:
 // sudo ./programma
 
 #include "windows.hpp"
