@@ -1,0 +1,44 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 3.a mijntaal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Maak een eigen taal genoteerd in BNF met tenminste de volgende symboolrijen:
+
+* led ws naam ws status ws nl  : een LED die aan/uit kan;
+* knop ws naam ws status ws nl : een keuze via een knop met van ja/nee;
+* label ws naam ws nl          : een regellocatie met een naam.
+
+Met:
+* ws: witruimte tussen de verschillende symboolrijen is, namelijk spatie, tab.
+* nl: nieuwe regel of einde van de totale invoer.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: maak de notaties van <knop> en <label> af
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+03.a/mijntaal.txt                                                  aangeleverd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+mijntaal.txt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<mijntaal>  ::= <commandos>
+<commandos> ::= <commando> | <commando> <nl> <commandos>
+<commando>  ::= <led> | <knop> | <label>
+<led>       ::= "led" <ws> <naam> <ws> <status> <ws>
+<knop>      ::= 
+<label>     ::= 
+<naam>      ::= <sym> | <sym> <sym>
+<sym>       ::= "a" | "b" | ... | "z" | "0" | "1" | ... | "9" | "-" | "_"
+<status>    ::= "on" | "off"
+<nl>        ::= "" | '000A' <nl> | '000D' <nl>
+<ws>        ::= "" | '0020' <ws> | '0009' <ws>

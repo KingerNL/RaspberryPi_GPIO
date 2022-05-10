@@ -1,0 +1,112 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 6.c mijnos
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ongeveer de belangrijkste taak van een besturingssysteem is het starten, 
+stoppen en beheren van programma’s. Wat er concreet in/door een programma 
+wordt gedaan staat los van het besturingssysteem, maar meestal zullen 
+faciliteiten van het besturingssysteem gebruikt worden.
+
+De werking van het programma van deze opdracht is om de volgende invoer uit 
+te gaan voeren:
+  $ hwlayer prog0.txt prog1.txt …      
+Ofwel 1 programmanaam gevolgd door nul of meer bestandsnamen. Elk bestand zou 
+moeten bestaan en heeft een klein stukje tekst als inhoud. 
+
+1.	Start met de broncode van opdracht 6.b.
+2.	Implementeren 1 hardware start/stop knop voor de OS thread.
+3.	Implementeren 1 hardware wissel knop om door het lijstje van actieve 
+    programma’s te lopen. Zorg dat het voldoende visueel is welk programma er 
+    nu zijn uitvoer toont.
+4.	Voeg mutexes toe om elk stuk input- en output-hardware.
+5.	Voeg de progthread (class) toe. Laat je inspireren door de osthread en 
+    zorg dat je aan deze nieuwe thread een string als parameter kan meegeven. 
+    Deze string kan dan in de thread worden verwerkt: het is de bestandsnaam. 
+    De thread zal herhaald de inhoud van het bestand tonen in zijn eigen 
+    ncurses window.
+6.	Voeg toe aan OS thread:
+    a.	Gebruik argc en argv om een array (tasklist) van progthread’s te 
+        maken. Zorg dat elke progthread zijn nummer in het array kent.
+    b.	Maak een gelijk array (windowlist) van ncurses windows aan.
+    c.	Zorg dat de output via de OS thread gaat: ‘printf’ naar het ncurses 
+        window dat dezelfde index als de progthread heeft. 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: gcc
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: 4
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+06.c/hwlayer.cpp                                                          zelf
+06.c/hwlayer.hpp                                                          zelf
+06.c/osthread.cpp                                                         zelf
+06.c/osthread.hpp                                                         zelf
+06.c/progthread.cpp                                                       zelf
+06.c/progthread.hpp                                                       zelf
+06.c/knop.cpp                                                             zelf
+06.c/knop.hpp                                                             zelf
+06.c/led.cpp                                                              zelf
+06.c/led.hpp                                                              zelf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+hwlayer.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+hwlayer.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+osthread.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO: zie het checklijstje
+
+
+
+osthread.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO: zie het checklijstje
+
+
+
+progthread.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//TODO: laat je inspireren door de osthread en zorg dat je een string (char*) mee kan geven
+
+
+
+progthread.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//TODO: laat je inspireren door de osthread en zorg dat je een string (char*) mee kan geven
+
+
+
+knop.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+knop.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+led.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+led.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

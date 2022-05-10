@@ -1,0 +1,76 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 2.c ledknop
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+De class Knop voor input en de class Led voor output zijn twee handige 
+standaard objecten die je in bijna elke opdracht kunt gebruiken. Door ze als 
+C++ objecten te gebruiken verberg je de hardware implementatie op de GPIO 
+nummers in de constructoren na.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+*	Laptop
+*	Raspberry Pi
+*	Breadboard met losse draden
+*	RGB-LED met weerstanden
+*	2x drukknopjes
+*	2x LED met weerstand
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, ...
+*	Aantal TODO’s: 
+  -	Tip: gebruik de BCM-library en zoek daarin naar blink.c ter inspiratie.
+  - Start met de main() in ledknop.cpp (gebruik 2.b als inspiratie)
+  -	Maak een Led-class;
+  -	Maak een Knop-class;
+  -	Maak een Rgbled-class;
+  -	In de main(): toon RGB kleuren bij initialisatie, while en bij opruimen.
+  -	In de main(): gebruik een knop-test in plaats van while(1)-lus.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:                                                        zelf
+02.c/knop.cpp                                                           zelf
+02.c/knop.hpp                                                                 zelf
+02.c/led.cpp                                                       zelf
+02.c/led.hpp          
+02.c/ledknop.cpp                                                          zelf
+02.c/rgbled.cpp                                                            zelf
+02.c/rgbled.hpp                                                           zelf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+ledknop.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+led.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+led.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+knop.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+knop.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+rgbled.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+rgbled.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

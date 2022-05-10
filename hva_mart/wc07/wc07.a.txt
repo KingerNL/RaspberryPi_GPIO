@@ -1,0 +1,218 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 7.a cyclischbuffer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Als een stuk hardware data in bytes kan ontvangen moet deze binnenkomende 
+data softwarematig steeds zo snel mogelijk worden verwerkt om de communicatie 
+hardware weer vrij te kunnen geven. Een voorbeeld is een UART poort. Omdat je 
+de data niet altijd gelijk kunt verwerken is het gebruikelijk deze tijdelijk 
+in een buffer op te slaan. Een cyclischbuffer wordt hier meestal voor 
+gebruikt: deze buffer kent geen einde en ook geen begin.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: gcc
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: 5
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+07.a/cyclischbuffer.cpp                                            aangeleverd
+07.a/cyclischbuffer.hpp                                            aangeleverd
+07.a/buffer.cpp                                                    aangeleverd
+07.a/buffer.hpp                                                    aangeleverd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+cyclischbuffer.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 7.a cyclischbuffer
+//
+// g++ -Wall -o cyclischbuffer cyclischbuffer.cpp buffer.cpp
+// ./cyclischbuffer
+
+//TODO: voeg de juiste include toe
+
+
+int main(int nArgc, char* aArgv[]) {
+
+  // Initialiseren
+  printf("7.a cyclischbuffer\n\n");
+  
+  Buffer oBuf(40);
+  printf("> lengte=%d blok=%d gevuld=%d isleeg=%c\n", oBuf.lengte(), oBuf.blok(), oBuf.gevuld(), oBuf.isLeeg() ? 'j' : 'n');
+
+  // Vul een stuk
+  printf("> push A..Z\n");
+  for (unsigned char c = 'A'; c < 'Z'; c++) {
+    //TODO: zorg dat c een push in oBuf krijgt
+    
+  };
+  printf("> lengte=%d blok=%d gevuld=%d isleeg=%c\n", oBuf.lengte(), oBuf.blok(), oBuf.gevuld(), oBuf.isLeeg() ? 'j' : 'n');
+
+  // Krijg een deel
+  printf("> pull: ");
+  for (unsigned char c = 0; c < 10; c++) {
+    printf("%c ", oBuf.pull());
+  };
+  printf("\n");
+  printf("> lengte=%d blok=%d gevuld=%d isleeg=%c\n", oBuf.lengte(), oBuf.blok(), oBuf.gevuld(), oBuf.isLeeg() ? 'j' : 'n');
+
+  // Overvul een stuk
+  printf("> push A..Z A..Z\n");
+  for (unsigned char c = 'A'; c < 'Z'; c++) {
+    oBuf.push(c);
+  };
+  for (unsigned char c = 'A'; c < 'Z'; c++) {
+    oBuf.push(c);
+  };
+  printf("> lengte=%d blok=%d gevuld=%d isleeg=%c\n", oBuf.lengte(), oBuf.blok(), oBuf.gevuld(), oBuf.isLeeg() ? 'j' : 'n');
+
+  // Krijg een deel
+  printf("> pull: ");
+  for (unsigned char c = 0; c < 10; c++) {
+    printf("%c ", oBuf.pull());
+  };
+  printf("\n");
+  printf("> lengte=%d blok=%d gevuld=%d isleeg=%c\n", oBuf.lengte(), oBuf.blok(), oBuf.gevuld(), oBuf.isLeeg() ? 'j' : 'n');
+
+  // Afsluiten
+  printf("\nAfgesloten :-)\n\n");
+
+  return 0;
+};
+
+
+
+cyclischbuffer.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 7.a cyclischbuffer
+
+//TODO: voeg de 2 #-commando's toe
+
+
+
+  #include <stdbool.h>
+  #include <stdio.h>
+  #include <string.h>
+  #include <time.h>
+  #include "buffer.hpp"
+
+  // Maak #define voor handige delay-functie in msec
+  #define thread_delay(nMSec) \
+  { \
+    struct timespec oTime, oTimeLeft; \
+    oTime.tv_sec = 0; \
+    oTime.tv_nsec = (nMSec) * 1000000L; \
+    nanosleep(&oTime, &oTimeLeft); \
+  };
+
+#endif // _CYCLISCHBUFFER_HPP_
+
+
+buffer.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 7.a cyclischbuffer
+
+#include "buffer.hpp"
+
+Buffer::Buffer(unsigned char nLengte, unsigned char nBlok) {
+
+  // Onthoud de instellingen en alloceer het geheugen
+  nLengte_ = nLengte;
+  nBlok_ = nBlok;
+  nKop_ = 0;
+  nStaart_ = 0;
+  pBuffer_ = new unsigned char[(unsigned int)nLengte_ * (unsigned int)nBlok_];
+};
+
+Buffer::~Buffer() {
+
+  // Geheugen vrijgeven
+  delete[] pBuffer_;
+};
+
+unsigned char Buffer::lengte() {
+
+  return nLengte_;
+};
+
+unsigned char Buffer::blok() {
+
+  return nBlok_;
+};
+
+unsigned char Buffer::gevuld() {
+
+  // Geef het verschil van de ko en staart aanwijzers
+  //TODO: zorg dat het resultaat hieronder gelijk wordt aan het return-type
+  return (nKop_ <= nStaart_ ? nStaart_ - nKop_ : nKop_ - nStaart_);
+};
+
+bool Buffer::isLeeg() {
+
+  return nKop_ == nStaart_;
+};
+
+void Buffer::push(unsigned char nData) {
+
+  // Forceer altijd opslaan
+  pBuffer_[nKop_] = nData;
+  nKop_ = (nKop_ + 1) % nLengte_;
+  if (nKop_ == nStaart_) {
+    nStaart_ = (nStaart_ + 1) % nLengte_;
+  };
+};
+
+unsigned char Buffer::pull() {
+
+  unsigned char nData = pBuffer_[nStaart_];
+
+  // Opvragen alleen zinnig indien niet leeg
+  if (!isLeeg()) {
+    nStaart_ = (nStaart_ + 1) % nLengte_;  
+  };
+
+  return nData;
+};
+
+
+
+buffer.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 7.a cyclischbuffer
+
+#ifndef _BUFFER_HPP_
+#define _BUFFER_HPP_
+
+  #include <stdbool.h>
+  #include <stdio.h>
+
+  // De cyclische buffer class
+  class Buffer {
+    public:
+      Buffer(unsigned char nLengte, unsigned char nBlok = 1);
+      ~Buffer();
+      unsigned char lengte();
+      unsigned char blok();
+      unsigned char gevuld();
+      bool isLeeg();
+      void push(unsigned char nData);
+      unsigned char pull();
+
+    private:
+      unsigned char nLengte_;
+      unsigned char nBlok_;
+      unsigned char *pBuffer_;
+      unsigned int nKop_;
+      unsigned int nStaart_;
+  };
+
+//TODO: voeg het juiste #-commando toe

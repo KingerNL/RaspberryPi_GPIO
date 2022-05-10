@@ -1,0 +1,160 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 2.b logfileextends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Soms is het handig data te dumpen in binaire bestanden. Dit kunnen 
+bijvoorbeeld afbeeldingen zijn die later in een tekenprogramma kunnen worden 
+gebruikt. Het is handig dat je functionaliteit van objecten kan hergebruiken.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+*	Laptop
+*	Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, ...
+*	Aantal TODO’s: 3
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+02.b/logfileextends.cpp                                            aangeleverd
+02.b/file.hpp                                                      aangeleverd
+02.b/file.cpp                                                      aangeleverd
+02.b/logfile.hpp                                                          zelf
+02.b/logfile.cpp                                                          zelf
+02.b/binfile.hpp                                                          zelf
+02.b/binfile.cpp                                                          zelf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+logfileextends.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 2.b logfileextends
+//
+// g++ -Wall -o logfileextends logfileextends.cpp logfile.cpp binfile.cpp file.cpp
+// ./logfileextends
+
+#include <stdio.h>
+#include "logfile.hpp"
+#include "binfile.hpp"
+
+int main(int nArgc, char* aArgv[]) {
+
+  Logfile oLog1;
+  Binfile oBin1;
+  char sBuf[100];
+
+  // Initialiseren
+  printf("02.b logfileextends\n\n");
+  if (!oLog1.open("log1.txt")) {
+    printf("Fout: de logfile kon niet geopend worden!");
+    printf("\nAfgebroken :(\n\n");
+  };
+  if (!oBin1.open("log1.dat")) {
+    printf("Fout: de logfile kon niet geopend worden!");
+    printf("\nAfgebroken :(\n\n");
+  };
+
+  // Maak 1000 keer
+  for (int i = 0; i < 1000; i++) {
+    //TODO #3: wijzig de tekst i kwadraad te tonen
+    sprintf(sBuf, "[%d] ", i);
+
+    printf(sBuf);
+    oLog1.write(i);
+    oLog1.write(sBuf);
+    oLog1 >> sBuf;
+
+    oBin1.write(i);
+  };
+
+  // Afsluiten
+  oLog1.close();
+  oBin1.close();
+  printf("\nAfgesloten :-)\n\n");
+  return 0;
+};
+
+
+
+file.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 2.b logfileextends
+
+#ifndef _FILE_HPP_
+#define _FILE_HPP_
+
+  #include <stdbool.h>
+  #include <stdio.h>
+
+  class File {
+    public:
+      File();
+      ~File();
+      virtual bool open(const char* sFilename) = 0;
+      virtual bool close() = 0;
+      virtual void write(int nValue) = 0;
+      virtual void write(char* pBuf) = 0;
+      virtual void operator>>(char* pBuf) = 0;
+
+    private:
+  };
+
+#endif // _FILE_HPP_
+
+
+
+file.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 2.b logfileextends
+
+#include "file.hpp"
+
+File::File() {
+
+};
+
+File::~File() {
+
+};
+
+
+
+logfile.hpp (gebruik van opdracht 2.a, vervang de class regel met:)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #include "file.hpp"
+
+  class Logfile : public File {
+
+
+
+logfile.cpp (gebruik van opdracht 2.a)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+binfile.hpp (gebruik Logfile van opdracht 2.a)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--> vervang de class regel met
+  #include "file.hpp"
+  
+  class Binfile : public File {
+<--
+
+--> vervang de constructor en destructor
+      Binfile();
+      ~Binfile();
+<--
+
+
+binfile.cpp (gebruik Logfile van opdracht 2.a)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--> vervang de fopen regel
+  pFile_ = fopen(sFilename, "wb");
+<--
+
+--> vervang de naam Logfile met Binfile incl. de include naam
+<--

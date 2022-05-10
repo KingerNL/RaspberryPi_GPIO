@@ -1,0 +1,150 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 2.a logfileoverload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Naast de inmiddels nu aanwezige logfile functionaliteit is het handig de 
+interface van dit object met een paar variaties nog flexibeler te maken.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+*	Laptop
+*	Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, ...
+*	Aantal TODO’s: 3
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+02.a/logfileoverload.cpp                                           aangeleverd
+02.a/logfile.hpp                                                          zelf
+02.a/logfile.cpp                                                          zelf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+logfileoverload.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 2.a logfileoverload
+//
+// g++ -Wall -o logfileoverload logfileoverload.cpp logfile.cpp
+// ./logfileoverload
+
+#include <stdio.h>
+#include "logfile.hpp"
+
+int main(int nArgc, char* aArgv[]) {
+
+  //TODO #3: voeg een tweede logbestand toe voor andere gegevens
+  Logfile oLog1;
+  char sBuf[100];
+
+  // Initialiseren
+  printf("02.a logfileoverload\n\n");
+  if (!oLog1.open("log1.txt")) {
+    printf("Fout: de logfile kon niet geopend worden!");
+    printf("\nAfgebroken :(\n\n");
+  };
+
+  // Maak 1000 keer
+  for (int i = 0; i < 1000; i++) {
+    //TODO #2: wijzig de tekst i kwadraad te tonen
+    sprintf(sBuf, "[%d] ", i);
+
+    printf(sBuf);
+    oLog1.write(i);
+    oLog1.write(sBuf);
+    oLog1 >> sBuf;
+  };
+
+  // Afsluiten
+  oLog1.close();
+  printf("\nAfgesloten :-)\n\n");
+  return 0;
+};
+
+
+
+logfile.hpp (gebruik van opdracht 1.c)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 2.a logfileoverload
+
+--> vervang de 'interface' van de class hiermee
+      Logfile();
+      ~Logfile();
+      bool open(const char* sFilename);
+      bool close();
+      void write(int nValue);
+      void write(char* pBuf);
+      void operator>>(char* pBuf);
+<--
+
+
+
+logfile.cpp (gebruik van opdracht 1.c, voeg/vervang hierin onderstaande)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 2.a logfileoverload
+
+#include "logfile.hpp"
+
+--> na de #include invoegen
+Logfile::Logfile() {
+
+  // Initialiseer de private variabelen
+  pFile_ = NULL;
+};
+
+Logfile::~Logfile() {
+
+  // Zorg altijd voor goed opruimen/vrijgeven!
+  if (pFile_ != NULL) {
+    close();
+  };
+};
+<--
+
+--> origineel behouden 
+bool Logfile::open(const char* sFilename) {
+};
+<--
+
+--> vervangen
+bool Logfile::close() {
+
+  int nRet;
+
+  // Sluit het bestand (0 = succes)
+  nRet = fclose(pFile_);
+  pFile_ = NULL;
+  return nRet == 0;
+};
+<--
+
+--> nieuw toevoegen boven de andere write() functie
+void Logfile::write(int nValue) {
+
+  char sNumber[50], *pBuf;
+
+  // Schrijf alle cijfers en een \n.
+  sprintf(sNumber, "%d\n", nValue);
+  pBuf = sNumber;
+  while (*pBuf > 0) {
+    fputc(*pBuf, pFile_);
+    pBuf++;
+  };
+};
+<--
+
+--> origineel behouden 
+void Logfile::write(char* pBuf) {
+};
+<--
+
+--> onderaan toevoegen
+void Logfile::operator>>(char* pBuf) {
+
+  write(pBuf);
+};
+<--

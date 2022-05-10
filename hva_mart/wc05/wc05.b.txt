@@ -1,0 +1,211 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 5.b hwdriver
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Alle hardware moet op een of andere manier gedeeld worden tussen alle 
+software die ervan gebruik willen maken. Neem bijvoorbeeld 1 thread die een 
+drukknop wil uitlezen. Als deze thread meerdere keren tegelijk actief is, wil 
+elke instantie van de thread mogelijk op hetzelfde ogenblik de knop uitlezen 
+om iets met de status te doen. Ondertussen gaat de uitvoer van de threads 
+door elkaar heen.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: gcc
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: 5
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+05.b/hwdriver.cpp                                                  aangeleverd
+05.b/hwdriver.hpp                                                  aangeleverd
+05.b/threads.cpp                                                   aangeleverd
+05.b/knop.cpp                                                      aangeleverd
+05.b/knop.hpp                                                      aangeleverd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+hwdriver.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.b hwdriver
+//
+// g++ -pthread -o hwdriver hwdriver.cpp threads.cpp knop.cpp -I ~/hva_libraries/bcm2835/src ~/hva_libraries/bcm2835/src/bcm2835.c -fpermissive
+// ./hwdriver
+
+//TODO: zorg voor de juiste include
+
+//TODO: kies 3 oof meer threads
+#define NUM_THREADS
+
+// Het programma begint
+bool _bRunning = true;
+
+// Globale hardware
+Knop oKnopStop;
+
+int main(int nArgc, char* aArgv[]) {
+
+  int nRet, i;
+  pthread_t oThreads[NUM_THREADS];
+  pthread_attr_t oAttr;
+  void *pStatus;
+
+  // Initialiseren
+  printf("5.b hwdriver\n\n");
+  if (!bcm2835_init()) {
+    printf("BCM init error!\n");
+    return 1;
+  };
+  oKnopStop.init(RPI_BPLUS_GPIO_J8_15);
+
+  // Thread eigenschappen instellen
+  pthread_attr_init(&oAttr);
+  pthread_attr_setdetachstate(&oAttr, PTHREAD_CREATE_JOINABLE);
+
+  for (i = 0; i < NUM_THREADS; i++) {
+    nRet = pthread_create(&oThreads[i], &oAttr, Threads, (void*)(long)i); 
+    if (nRet > 0) {
+      printf("Thread kon niet gemaakt worden!\n");
+      return -1;
+    };
+  };
+
+  // Afsluiten door te wachten op de hoofdthread en daarna elke andere thread
+  pthread_attr_destroy(&oAttr);
+  printf("\nAfsluiten threads: "); fflush(stdout);
+  for (i = 0; i < NUM_THREADS; i++) {
+    pthread_join(oThreads[i], &pStatus); printf(" Thread[%i]=%ld ", i, (long)pStatus);
+  };
+  
+  bcm2835_close();
+  printf("\nAfgesloten :-)\n\n");
+
+  return 0;
+};
+
+
+
+hwdriver.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.b hwdriver
+
+#ifndef _HWDRIVER_HPP_
+#define _HWDRIVER_HPP_
+
+  #include <bcm2835.h>
+  #include <stdbool.h>
+  #include <stdio.h>
+  #include <string.h>
+  #include <time.h>
+  //TODO: zorg voor includes pthread en ...?
+
+  // Maak #define voor handige delay-functie in msec
+  #define thread_delay(nMSec) \
+  { \
+    struct timespec oTime, oTimeLeft; \
+    oTime.tv_sec = 0; \
+    oTime.tv_nsec = (nMSec) * 1000000L; \
+    nanosleep(&oTime, &oTimeLeft); \
+  };
+
+  // Mijn threads
+  extern bool _bRunning;
+  void *Threads(void* pThreadData);
+
+  // Globale hardware
+  extern Knop oKnopStop;
+
+#endif // _HWDRIVER_HPP_
+
+
+
+threads.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.b hwdriver
+
+#include "hwdriver.hpp"
+
+void *Threads(void* pThreadData) {
+
+  long nNr = (long)pThreadData;
+
+  // Ga door tot drukknop 1
+  while (true) {
+
+    // Toon unieke thread tekst
+    printf("T[%ld] ", nNr); fflush(stdout);
+    thread_delay(250 + nNr * 100);
+
+    // Stoppen?
+    //TODO: zorg dat er gekeken wordt of de knop ingedrukt is
+    if (oKnopStop) {
+      _bRunning = false;
+      pthread_exit(NULL);
+    };
+  };
+
+  // Thread vrijgeven
+  pthread_exit(NULL);
+};
+
+
+
+knop.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.b hwdriver
+
+#include "knop.hpp"
+
+Knop::Knop() {
+
+};
+
+Knop::~Knop() {
+
+};
+
+void Knop::init(int nPin) {
+
+  nPin_ = nPin;
+  bcm2835_gpio_fsel(nPin_, BCM2835_GPIO_FSEL_INPT);
+  bcm2835_gpio_set_pud(nPin_, BCM2835_GPIO_PUD_UP);
+};
+
+bool Knop::pushed() {
+
+  // Knop ingesteld met pull-up, dus ingedrukt is laag
+  return bcm2835_gpio_lev(nPin_) == LOW;
+};
+
+
+
+knop.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.b hwdriver
+
+//TODO: zorg voor de juiste 2 #-commando's
+
+  #include <bcm2835.h>
+  #include <stdbool.h>
+  #include <stdio.h>
+
+  // De drukknop class
+  class Knop {
+    public:
+      Knop();
+      ~Knop();
+      void init(int nPin);
+      bool pushed();
+
+    private:
+      int nPin_;
+  };
+
+#endif // _KNOP_HPP_

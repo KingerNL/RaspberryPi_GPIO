@@ -1,0 +1,226 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 3.c runtime
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Voeg aan de vorige opdracht 3.b een Runtime class toe. Deze Runtime class 
+representeert met zijn class variabelen de externe hardware die jouw taal kan 
+aansturen. De class functies van deze Runtime class zijn in feite de 
+instructies van jouw instructieset.
+
+Het concreet aansturen van de externe hardware met de eerder gemaakte Led 
+class en Knop class wordt pas in opdracht 4.c toegevoegd. Die opdracht is de 
+eerste afvinkopdracht.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: gcc
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: 1
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+03.c/compiler.cpp                                                  aangeleverd
+03.c/parser.hpp                                                           zelf
+03.c/parser.cpp                                                           zelf
+03.c/runtime.hpp                                                   aangeleverd
+03.c/runtime.cpp                                                   aangeleverd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+compiler.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 3.c runtime
+//
+// g++ -Wall -o runtime compiler.cpp parser.cpp runtime.cpp
+// ./runtime
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "parser.hpp"
+#include "runtime.hpp"
+
+#define MAX_INVOER 100
+
+int main(int nArgc, char* aArgv[]) {
+
+  Parser oParser;
+  Runtime oRuntime;
+
+  char sBuffer[MAX_INVOER + 1];
+  uint8_t nCount;
+
+  // Initialiseren
+  printf("03.c runtime\n\n");
+  
+  // Vraag om een regel tekst in sBuffer
+  do
+  {
+    // Lees een regel
+    printf("\nCommandoinvoer: ");
+    fgets(sBuffer, MAX_INVOER, stdin);
+    printf("Gelezen: [%s]\n", sBuffer);
+
+    // Parse de regel in tokens
+    nCount = oParser.parse(sBuffer);
+
+    /*// Toon de tokens
+    printf("Tokens %d: ", nCount);
+    for (uint8_t i = 0; i < nCount; i++) {
+      printf("{%s}", oParser.token(i));
+    };
+    printf("\n");
+    */
+
+    // Voer de ingelezen commando's uit
+    if (nCount > 0) {
+      if (strcmp(oParser.token(0), "knop") == 0) {
+        // Goed commando?
+        if (nCount == 2) {
+          bool bRet = oRuntime.knop(oParser.token(1));
+        }
+        else {
+          printf(" Syntax error! ");
+        };
+      }
+      else
+      if (strcmp(oParser.token(0), "led") == 0) {
+        // Goed commando?
+        if (nCount == 3) {
+          oRuntime.led(oParser.token(1), strcmp(oParser.token(2), "on") == 0);
+        }
+        else {
+          printf(" Syntax error! ");
+        };
+      }
+      else
+      if (strcmp(oParser.token(0), "label") == 0) {
+        // Goed commando?
+        if (nCount == 2) {
+          oRuntime.label(oParser.token(1));
+        }
+        else {
+          printf(" Syntax error! ");
+        };
+      }
+      else
+      //TODO: voeg commando jump toe (hint: dit is bijna het zelfde als commando label)
+
+      else
+      if (strcmp(oParser.token(0), "wait") == 0) {
+        // Goed commando?
+        if (nCount == 2) {
+          oRuntime.wait(atoi(oParser.token(1)));
+        }
+        else {
+          printf(" Syntax error! ");
+        };
+      }
+      else {
+        printf(" Onbekende invoer! ");
+      };
+    };
+
+  } while (strcmp(sBuffer, "\n") != 0);
+
+  // Afsluiten
+  printf("\nAfgesloten :-)\n\n");
+  return 0;
+};
+
+
+
+parser.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+parser.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+runtime.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 3.c runtime
+
+/* 
+Voorbeeld van de taal:
+
+label x
+led rood on
+wait 100
+led rood off
+wait 100
+jump x
+*/
+
+#ifndef _RUNTIME_HPP_
+#define _RUNTIME_HPP_
+
+  #include <stdbool.h>
+  #include <stdint.h>
+  #include <stdio.h>
+  #include <string.h>
+
+  class Runtime {
+    public:
+      Runtime();
+      ~Runtime();
+      bool knop(char* sNaam);
+      void led(char* sNaam, bool bStatus);
+      void label(char* sNaam);
+      void jump(char* sNaam);
+      void wait(uint16_t nMSec);
+
+    private:
+  };
+
+#endif // _RUNTIME_HPP_
+
+
+runtime.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 3.c runtime
+
+#include "runtime.hpp"
+
+Runtime::Runtime() {
+
+};
+
+Runtime::~Runtime() {
+
+};
+
+bool Runtime::knop(char* sNaam) {
+
+  printf(" KNOP %s=", sNaam);
+  return false;
+};
+
+void Runtime::led(char* sNaam, bool bStatus) {
+
+  printf(" LED %s %s ", sNaam, (bStatus ? "on" : "off"));
+};
+
+void Runtime::label(char* sNaam) {
+
+  printf(" LABEL %s ", sNaam);
+};
+
+void Runtime::jump(char* sNaam) {
+
+  printf(" JUMP %s ", sNaam);
+};
+
+void Runtime::wait(uint16_t nMSec) {
+
+  printf(" WAIT %d ", nMSec);
+};

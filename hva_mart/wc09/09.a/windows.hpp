@@ -13,7 +13,6 @@
 #include <thread>
 #include <iostream>
 #include <time.h>
-#include <mutex>
 
 // Maak een functie genaamd thread_delay
 #define thread_delay(nMSec) \
@@ -29,5 +28,6 @@ void initWin();
 void closeWin();
 void prntWin1();
 void prntWin2();
+
 
 #endif // _MULTITHREADING_HPP_

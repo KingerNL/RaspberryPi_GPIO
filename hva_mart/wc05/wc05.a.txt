@@ -1,0 +1,171 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 5.a multithreading
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Meerdere stukken programma kun je met threads letterlijk gelijktijdig laten 
+uitvoeren. Het is praktisch om het aanmaken en vrijgeven van threads 
+(meestal) in de main-functie te doen. 
+
+Je zal merken dat het niet overzichtelijk werkt dat je maar 1 invoer (stdin) 
+en 1 uitvoer (stdout) mogelijkheid hebt.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: gcc
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: 4
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+05.a/multithreading.cpp                                            aangeleverd
+05.a/multithreading.hpp                                            aangeleverd
+05.a/threadletters.cpp                                             aangeleverd
+05.a/threadoptellen.cpp                                            aangeleverd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+multithreading.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.a multithreading
+//
+// g++ -Wall -pthread -o multithreading multithreading.cpp threadletters.cpp threadoptellen.cpp
+// ./multithreading
+
+//TODO: juiste include toevoegen
+
+// Het programma begint
+bool _bRunning = true;
+
+int main(int nArgc, char* aArgv[]) {
+
+  int nRet;
+  pthread_t oThreadLetters;
+  pthread_t oThreadOptellen;
+  pthread_attr_t oAttr;
+  void *pStatus;
+
+  // Initialiseren
+  printf("05.a multithreading\n\n");
+
+  // Thread eigenschappen instellen
+  pthread_attr_init(&oAttr);
+  pthread_attr_setdetachstate(&oAttr, PTHREAD_CREATE_JOINABLE);
+
+  nRet = pthread_create(&oThreadLetters, &oAttr, ThreadLetters, (void*)123); 
+  if (nRet > 0) {
+    printf("Thread kon niet gemaakt worden!\n");
+    return -1;
+  };
+
+  nRet = pthread_create(&oThreadOptellen, &oAttr, ThreadOptellen, (void*)"a+b en 'foute' invoer is stoppen"); 
+  if (nRet > 0) {
+    printf("Thread kon niet gemaakt worden!\n");
+    return -1;
+  };
+
+  // Afsluiten door te wachten op de hoofdthread en daarna elke andere thread
+  pthread_attr_destroy(&oAttr);
+  printf("\nAfsluiten threads: "); fflush(stdout);
+  pthread_join(oThreadOptellen, &pStatus); printf(" ThreadOptellen=%ld ", (long)pStatus);
+  pthread_join(oThreadLetters, &pStatus); printf(" ThreadLetters=%ld ", (long)pStatus);
+  printf("\nAfgesloten :-)\n\n");
+  return 0;
+};
+
+
+
+multithreading.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.a multithreading
+
+//TODO: juiste #ifndef en #define toevoegen
+
+  #include <stdbool.h>
+  #include <stdio.h>
+  #include <time.h>
+  //TODO: zorg dat headerfile pthread ook geladen wordt
+
+  // Maak #define voor handige delay-functie in msec
+  #define thread_delay(nMSec) \
+  { \
+    struct timespec oTime, oTimeLeft; \
+    oTime.tv_sec = 0; \
+    oTime.tv_nsec = (nMSec) * 1000000L; \
+    nanosleep(&oTime, &oTimeLeft); \
+  };
+
+  // Mijn threads
+  extern bool _bRunning;
+  void *ThreadLetters(void* pThreadData);
+  void *ThreadOptellen(void* pThreadData);
+
+#endif // _MULTITHREADING_HPP_
+
+
+
+threadletters.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.a multithreading
+
+#include "multithreading.hpp"
+
+void *ThreadLetters(void* pThreadData) {
+
+  long nTid = (long)pThreadData;
+
+  printf("ThreadLetters(%ld)\n", nTid);
+
+  // Ga door tot het programma niet meer draait
+  while (true) {
+
+    for (char c = 'A'; c <= 'Z'; c++) {
+      printf("%c", c); fflush(stdout);
+      //TODO: zorg voor en delay van 500 msec
+      thread_delay();
+
+      // Stoppen?
+      if (!_bRunning) {
+        pthread_exit(NULL);
+      };
+    };
+  };
+
+  // Thread vrijgeven
+  pthread_exit(NULL);
+};
+
+
+
+threadoptellen.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.a multithreading
+
+#include "multithreading.hpp"
+
+void *ThreadOptellen(void* pThreadData) {
+
+  char *pText = (char*)pThreadData;
+  int a, b;
+
+  printf("Optellen %s:\n", pText);
+
+  // Ga door tot een foute invoer
+  while (true) {
+
+    if (scanf("%d+%d", &a, &b) != 2) {
+      _bRunning = false;
+      pthread_exit(NULL);
+    };
+    printf("=%d\n", a+b); fflush(stdout);
+  };
+
+  // Thread vrijgeven
+  pthread_exit(NULL);
+};

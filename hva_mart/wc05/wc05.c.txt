@@ -1,0 +1,258 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 5.c hwlayer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Wanneer alle hardware centraal beheerd wordt, is het mogelijk bijvoorbeeld 
+speciale toetscombinaties of muisklikken te verwerken. De overige invoer kan 
+dan doorgestuurd worden naar de actieve programma’s (in ons geval threads).
+
+De broncode in de vorige opdracht werd onoverzichtelijk. Door C++ objecten te 
+introduceren komt het overzicht weer terug. Alle hardware moet nu privé in de 
+nieuwe OS thread worden beheerd.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: gcc
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: 5
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+05.c/hwlayer.cpp                                                   aangeleverd
+05.c/hwlayer.hpp                                                   aangeleverd
+05.c/osthread.cpp                                                  aangeleverd
+05.c/osthread.hpp                                                  aangeleverd
+05.c/knop.cpp                                                             zelf
+05.c/knop.hpp                                                             zelf
+05.c/led.cpp                                                              zelf
+05.c/led.hpp                                                              zelf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+hwlayer.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.c hwlayer
+//
+// g++ -pthread -o hwlayer hwlayer.cpp osthread.cpp knop.cpp led.cpp -I ~/hva_libraries/bcm2835/src ~/hva_libraries/bcm2835/src/bcm2835.c -fpermissive
+// ./hwlayer
+
+//TODO: voeg de juiste include toe
+
+int main(int nArgc, char* aArgv[]) {
+
+  // Initialiseren
+  printf("5.c hwlayer\n\n");
+  if (!bcm2835_init()) {
+    printf("BCM init error!\n");
+    return 1;
+  };
+
+  // Laad en start de OS hardware laag
+  OsThread oOsThread;
+  oOsThread.join();
+
+  // Afsluiten na het wachten op de hoofdthread
+  bcm2835_close();
+  printf("\nAfgesloten :-)\n\n");
+
+  return 0;
+};
+
+
+
+hwlayer.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.c hwlayer
+
+#ifndef _HWLAYER_HPP_
+#define _HWLAYER_HPP_
+
+  #include <bcm2835.h>
+  #include <stdbool.h>
+  #include <stdio.h>
+  #include <string.h>
+  #include <time.h>
+  //TODO: zorg dat de OS thread bekend is
+
+#endif // _HWLAYER_HPP_
+
+
+
+osthread.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.c hwlayer
+
+#include "osthread.hpp"
+
+OsThread::OsThread() {
+  
+  // Initialiseer de hardwarelaag voordat hij gebruikt gaat worden
+  //TODO: kies bijvoorbeeld knoppen pin 15 en 16, en LED's pin 11 en 13
+  oHwStop_.init(RPI_BPLUS_GPIO_J8_15);
+  oHwKnop_.init();
+  oLed1_.init();
+  oLed2_.init();
+
+  // Initialiseer de thread instellingen
+  pthread_attr_init(&oAttr_);
+  pthread_attr_setdetachstate(&oAttr_, PTHREAD_CREATE_JOINABLE);
+
+  // Maak de thread zelf en koppel de class instantie via het dataveld
+  int nRet = pthread_create(&oThread_, &oAttr_, thread, (void*)this); 
+  if (nRet > 0) {
+    printf("OsThread kon niet gemaakt worden!\n");
+    return;
+  };
+};
+
+OsThread::~OsThread() {
+
+  // Vrijgeven thread instellingen
+  pthread_attr_destroy(&oAttr_);
+};
+
+void OsThread::join() {
+
+  void *pStatus;
+
+  // Wacht tot de thread klaar is
+  pthread_join(oThread_, &pStatus); 
+};
+
+void OsThread::delay(long nMSec) {
+
+  struct timespec oTime, oTimeLeft;
+
+  // Handige delay-functie in msec
+  oTime.tv_sec = 0; 
+  oTime.tv_nsec = nMSec * 1000000L;
+  nanosleep(&oTime, &oTimeLeft);
+};
+
+void *OsThread::thread(void *pThreadData) {
+
+  OsThread *pThis;
+  bool bLed1;
+
+  // Maak een referentie naar het class object
+  pThis = (OsThread*)pThreadData;
+
+  // Start met LED1
+  bLed1 = true;
+  pThis->oLed1_.on();
+
+  // Ga door tot drukknop 1
+  while (true) {
+
+    // Toon unieke thread tekst
+    printf("."); fflush(stdout);
+    pThis->delay(400);
+
+    // Wisselen?
+    if (pThis->oHwKnop_.pushed()) {
+      bLed1 = !bLed1;
+      if (bLed1) {
+        pThis->oLed1_.on();
+        pThis->oLed2_.off();
+      }
+      else {
+        pThis->oLed1_.off();
+        pThis->oLed2_.on();
+      }
+    };
+
+    // Stoppen?
+    if (pThis->oHwStop_.pushed()) {
+      pThis->oLed1_.off();
+      pThis->oLed2_.off();
+      pthread_exit(NULL);
+    };
+  };
+ 
+  // Thread vrijgeven
+  pthread_exit(NULL);
+};
+
+
+
+osthread.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 5.c hwlayer
+
+//TODO: zorg voor de juiste # commando's
+
+  #include <bcm2835.h>
+  #include <stdbool.h>
+  #include <stdio.h>
+  #include <pthread.h>
+  //TODO: zorg dat de Knop en Led class bekend zijn
+
+  // De OS thread hardware laag class
+  class OsThread {
+    public:
+      OsThread();
+      ~OsThread();
+      void join();
+
+    private:
+      pthread_t oThread_;
+      pthread_attr_t oAttr_;
+      Knop oHwStop_;
+      Knop oHwKnop_;
+      Led oLed1_;
+      Led oLed2_;
+
+      void delay(long nMSec);
+      static void *thread(void *pThreadData);
+  };
+
+#endif // _OSTHREAD_HPP_
+
+
+
+knop.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+knop.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Hint voor mogelijke implementatie van jouw versie
+    public:
+      Knop();
+      ~Knop();
+      void init(int nPin);
+      bool pushed();
+
+    private:
+      int nPin_;
+
+
+
+led.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+led.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Hint voor mogelijke implementatie van jouw versie
+    public:
+      Led();
+      ~Led();
+      void init(int nPin);
+      void on();
+      void off();
+      void toggle();
+      bool state();
+
+    private:
+      int nPin_;
+      bool bState_;

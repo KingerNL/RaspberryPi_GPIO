@@ -1,0 +1,169 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 3.b compiler
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Schrijf een programma dat een regel tekst van de gebruiker vraagt en deze 
+vervolgens in stukjes hakt door witruimte te detecteren. Dit heet een 
+tokenizer. Plaats de broncode van deze tokenizer in een Parser class.
+
+1. Vraag in de main() in een while-lus steeds om een nieuwe regel tekst van 
+   de gebruiker.
+2. Laat een lege invoer de while-lus stoppen en het programma afsluiten.
+3. Geef de ingevoerde regel aan de Parser class zodat die hem teken voor 
+   teken kan scannen en hem hierdoor in blokjes (tokens) kan hakken. De 
+   zojuist gelezen tokens zijn erna uit de Parser class te lezen.
+4. Toon in de main() op het scherm met printf() de ingelezen tokens uit de 
+   Parser class.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: gcc
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: 2
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+03.b/compiler.cpp                                                  aangeleverd
+03.b/parser.hpp                                                    aangeleverd
+03.b/parser.cpp                                                    aangeleverd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+compiler.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 3.b compiler
+//
+// g++ -Wall -o compiler compiler.cpp parser.cpp
+// ./compiler
+
+#include <stdio.h>
+#include <stdint.h>
+#include "parser.hpp"
+
+#define MAX_INVOER 100
+
+int main(int nArgc, char* aArgv[]) {
+
+  Parser oParser;
+  char sBuffer[MAX_INVOER + 1];
+  uint8_t nCount;
+
+  // Initialiseren
+  printf("03.b compiler\n\n");
+  
+  // Vraag om een regel tekst in sBuffer
+  do
+  {
+    // Lees een regel
+    printf("\nCommandoinvoer: ");
+    fgets(sBuffer, MAX_INVOER, stdin);
+    printf("Gelezen: [%s]\n", sBuffer);
+
+    // Parse de regel in tokens
+    nCount = oParser.parse(sBuffer);
+    printf("Tokens %d: ", nCount);
+    for (uint8_t i = 0; i < nCount; i++) {
+      printf("{%s}", oParser.token(i));
+    };
+    printf("\n");
+    
+  } while (strcmp(sBuffer, "\n") != 0);
+
+  // Afsluiten
+  printf("\nAfgesloten :-)\n\n");
+  return 0;
+};
+
+
+parser.hpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 3.b compiler
+
+#ifndef _PARSER_HPP_
+#define _PARSER_HPP_
+
+  #define PARSER_MAX_TOKENS 5
+  #define PARSER_MAX_TOKENSSIZE 50
+  
+  #include <stdbool.h>
+  #include <stdint.h>
+  #include <stdio.h>
+
+  class Parser {
+    public:
+      Parser();
+      ~Parser();
+      uint8_t parse(char* sLine);
+      char* token(uint8_t nIndex);
+
+    private:
+      char aToken_[PARSER_MAX_TOKENS][PARSER_MAX_TOKENSSIZE];
+  };
+
+#endif // _PARSER_HPP_
+
+
+
+parser.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// 3.b compiler
+
+#include "parser.hpp"
+
+Parser::Parser() {
+
+  // Maak de tokens leeg
+  memset(aToken_, 0, PARSER_MAX_TOKENS * PARSER_MAX_TOKENSSIZE);
+};
+
+Parser::~Parser() {
+
+};
+
+uint8_t Parser::parse(char* sLine) {
+
+  uint8_t nTokens = 0;
+  uint16_t nIndex = 0, t = 0;
+  
+  // Loop alle tekens langs tot \0
+  while (sLine[nIndex] != 0) {
+
+    // Sla witruimte over: tab, spatie en enter
+    //TODO: zorg dat de spatie ook als witruimte wordt gezien
+    while (sLine[nIndex] > 0 && (sLine[nIndex] == '\t' || sLine[nIndex] == ? || sLine[nIndex] == '\n' || sLine[nIndex] == '\r')) {
+      nIndex++;
+    };
+
+    // Lees en sla op tot het einde van sLine of tot de eerste witruimte
+    t = 0;
+    //TODO: zorg dat de spatie ook als witruimte wordt gezien
+    while (sLine[nIndex] > 0 && sLine[nIndex] != '\t' && sLine[nIndex] != ? && sLine[nIndex] != '\n' && sLine[nIndex] != '\r') {
+      aToken_[nTokens][t] = sLine[nIndex];
+      t++; nIndex++;
+    };
+
+    // Echt een token gelezen?
+    if (t > 0) {
+      // Sluit de string af
+      aToken_[nTokens][t] = 0;
+      nTokens++;
+    };
+  };
+
+  return nTokens;
+};
+
+char* Parser::token(uint8_t nIndex) {
+
+  if (nIndex >= PARSER_MAX_TOKENS) {
+    nIndex = 0;
+  };
+  return aToken_[nIndex];
+};

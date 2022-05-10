@@ -7,40 +7,43 @@
 
 #ifndef _HARDWARE_HPP_
 #define _HARDWARE_HPP_
-#define MAX_INVOER 100
+
 #define LED_MAX_TOKENS 10
 #define LED_MAX_TOKENSSIZE 50
   
-// define Led, Button and DC motor pins
-#define PINLEDG RPI_BPLUS_GPIO_J8_11
-#define PINLEDY RPI_BPLUS_GPIO_J8_13
-#define PINLEDR RPI_BPLUS_GPIO_J8_15
-#define PINBTN RPI_BPLUS_GPIO_J8_10
-#define DC1 RPI_BPLUS_GPIO_J8_16
-#define DC2 RPI_BPLUS_GPIO_J8_18
+// Blink on RPi big connector J8 pin 10 which is GPIO pin 15
+#define PINLED RPI_BPLUS_GPIO_J8_10
 
-void initHard();
-void initPars();
-void Afsluiten();
-void DCaan();
+// Stop on RPi big connector J8 pin 12 which is GPIO pin 18
+#define PINBTN RPI_BPLUS_GPIO_J8_12
+
+void VerranderLed(); //Probeer deze in de class Led te krijgen, met runtime actie
 
 class Led {
- public:
-  Led();
-  ~Led();
-  bool LedStaat();
-  void VerranderLed();
-
-  private:
+public:
+    Led();
+    ~Led();
+    bool LedStaat();
+private:
 };
 
 class Knop {
- public:
-  Knop();
-  ~Knop();
-  bool KnopStaat();
+public:
+    Knop();
+    ~Knop();
+    bool KnopStaat();
 
- private:
+private:
+};
+
+class RGBLed {
+public:
+    RGBLed();
+    ~RGBLed();
+    bool RGBLedStaat();
+    void VerranderRGBLed(char* Wachttijd);
+
+private:
 };
 
 #endif // _HARDWARE_HPP_

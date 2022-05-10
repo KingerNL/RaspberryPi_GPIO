@@ -1,7 +1,6 @@
 label barf
-wait 500
 led red on
-wait 500
+wait 100
 led red off
-knop afsluiten
+wait 100
 jump barf

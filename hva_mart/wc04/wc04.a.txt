@@ -1,0 +1,64 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opdracht 4.a ncurses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Maak het standaard ncurses helloworld programma. Verander het vervolgens 
+zodat de uitvoertekst in een omlijnd ncurses-window op een bewust gekozen 
+gedeelte op het scherm verschijnt.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware 
+* Laptop
+* Raspberry Pi
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Software 
+*	Via ssh-sessie: gcc
+*	Via ssh-sessie: g++
+*	Via ssh-sessie: nano, vi, … 
+*	Via drive-mapping: Notepad++, Visual Code, …
+*	Aantal TODO’s: 
+  1. Compileer de broncode ncurses.cpp en voer deze uit.
+  2. Activeer in de broncode pWin en compileer de broncode en voer deze uit.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Folders en bestanden:
+04.a/ncurses.cpp                                                   aangeleverd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+ncurses.cpp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Basic ncurses Hello World
+//
+// Compile: g++ -Wall -o ncurses ncurses.cpp  -lncurses
+// Run    : ./ncurses
+
+#include <ncurses.h>
+
+int main() {
+
+  //WINDOW *pWin = NULL;
+
+  // Start curses mode
+  initscr();
+  refresh();
+  
+  // Print the text and refresh to the real screen
+  printw("Hello World !!! ");  
+
+  // Create a ncurses window
+  //pWin = newwin(10, 30, 5, 15);
+  //wborder(pWin, '|', '|', '-', '-', '+', '+', '+', '+');
+
+  // Print text in window
+  //mvwprintw(pWin, 3, 1, "Hello Window :-) ");
+  //wrefresh(pWin);
+
+  // Close the program
+  getch();
+  //delwin(pWin);
+  endwin();
+
+ return 0;
+};

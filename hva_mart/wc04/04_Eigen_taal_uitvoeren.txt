@@ -1,0 +1,9 @@
+led on
+led off
+wait 100
+label X
+wait 100
+led on
+wait 100
+led off
+jump X
