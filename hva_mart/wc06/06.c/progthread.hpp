@@ -6,7 +6,6 @@
 
   void* test(void *ptr);
  
-  
   // De OS thread hardware laag class
   class ProgThread {
     public:
@@ -16,8 +15,13 @@
         void stop();
         std::string name;
         pthread_t thread_id;
+        bool staat = 0;
+        FILE *File;
 
     private:
+      Led oLed1_;
+      Led oLed2_;
+      Led oLed3_;
   };
 
 #endif // 

@@ -1,6 +1,6 @@
 // 5.c hwlayer
 //
-// g++ -lncurses -pthread -o hwlayer hwlayer.cpp osthread.cpp knop.cpp led.cpp -lbcm2835
+// g++ -lncurses -pthread -o hwlayer hwlayer.cpp progthread.cpp osthread.cpp knop.cpp led.cpp -lbcm2835
 // ./hwlayer
 
 #include "hwlayer.hpp"

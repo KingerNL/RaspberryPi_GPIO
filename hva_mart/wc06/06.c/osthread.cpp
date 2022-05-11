@@ -7,25 +7,22 @@ using namespace std;
 FILE *pFile;
 WINDOW *pWin1 = NULL; 
 WINDOW *pWin2 = NULL; 
-WINDOW* textwin = NULL; 
+WINDOW *textwin = NULL; 
+WINDOW *labelwin = NULL;
 WINDOW *Prog1 = NULL;
 WINDOW *Prog2 = NULL;
 WINDOW *Prog3 = NULL;
 WINDOW *Prog4 = NULL;
 WINDOW *Prog5 = NULL;
+char sBuffer[59];
 
 OsThread::OsThread() {
-  
   // Initialiseer de hardwarelaag voordat hij gebruikt gaat worden
   KnopUp.init(RPI_BPLUS_GPIO_J8_10);
   KnopDown.init(RPI_BPLUS_GPIO_J8_12);
   KnopStartProg.init(RPI_BPLUS_GPIO_J8_16); // rechterste button
   KnopStopProg.init(RPI_BPLUS_GPIO_J8_18);  // linkerste button
   KnopStopOS.init(RPI_BPLUS_GPIO_J8_22);   
-
-  oLed1_.init(RPI_BPLUS_GPIO_J8_11);
-  oLed2_.init(RPI_BPLUS_GPIO_J8_15);
-
 };
 
 OsThread::~OsThread() {
@@ -50,7 +47,7 @@ void OsThread::run(int argc, char** Namen){
   for(int i = 1; i < argc; i++) {
   FILE * pFile = fopen(Namen[i], "r");
     if (pFile!=NULL) {
-    v.push_back(Namen[i]);
+      v.push_back(Namen[i]);
     }
   }
   
@@ -59,6 +56,7 @@ void OsThread::run(int argc, char** Namen){
   for (int i=0; i < v.size(); i++){
     progs[i].thread_id = i;
     progs[i].name = v[i];
+    progs[i].File = fopen(progs[i].name.c_str(), "r");
   }
 
   initscr();
@@ -66,10 +64,9 @@ void OsThread::run(int argc, char** Namen){
 
   int programs = v.size();
   setup(programs, v);
-
   // Ga door tot drukknop 1
   while (true) {
-
+    
     // Wisselen?
     if (KnopUp.pushed()) {
       currwin ++;
@@ -78,7 +75,24 @@ void OsThread::run(int argc, char** Namen){
       if (currwin > programs){ // verranderen naar: if currwin > nArgc.size().
         currwin = programs;    // verranderen naar: currwin = nArgc.size().
       }
-    delay(300);
+      
+      werase(labelwin);
+      werase(textwin);
+      // Laat huidige bestand zien, indien de curor erop staat. (Dus if currwin-1.staat == 1)
+      if (progs[currwin-1].staat == 1){
+        wprintw(labelwin, "%s", progs[currwin-1].name.c_str());
+        
+        // Verwijderd laatste text file en zet het op het scherm
+        while(feof(progs[currwin-1].File) == 0){
+          fgets(sBuffer, 56, progs[currwin-1].File);
+          wprintw(textwin, "%s", sBuffer);
+        }
+      }
+
+      wrefresh(textwin);
+      wrefresh(labelwin); 
+      fseek(progs[currwin-1].File, 0, SEEK_SET);
+      delay(300);
     }
 
     if (KnopDown.pushed()){
@@ -89,24 +103,45 @@ void OsThread::run(int argc, char** Namen){
       if (currwin <= 0){ 
         currwin = 1; 
       }
-    delay(300);
+    
+      werase(labelwin);
+      werase(textwin);
+      // Laat huidige bestand zien, indien de curor erop staat. (Dus if currwin-1.staat == 1)
+      if (progs[currwin-1].staat == 1){
+        wprintw(labelwin, "%s", progs[currwin-1].name.c_str());
+        
+        // Verwijderd laatste text file en zet het op het scherm
+        while(feof(progs[currwin-1].File) == 0){
+          fgets(sBuffer, 56, progs[currwin-1].File);
+          wprintw(textwin, "%s", sBuffer);
+        }
+      }
+
+      wrefresh(textwin);
+      wrefresh(labelwin); 
+      fseek(progs[currwin-1].File, 0, SEEK_SET);
+      delay(300);
     }
 
-    // Indrukken?
+    // Programma starten?
     if (KnopStartProg.pushed()){
       progs[currwin-1].start();
-      currprog = activate(currwin, v);
+      currprog = activate(currwin, progs[currwin-1].name, progs[currwin-1].File);
       delay(300);
     }
-
+ 
+    // Programma stoppen?
     if (KnopStopProg.pushed()){
-      progs[currwin-1].stop();
-      deactivate(currwin, currprog, v);
-      delay(300);
+      if (progs[currwin-1].staat == 1){
+        progs[currwin-1].stop();
+        deactivate(currwin, currprog, progs[currwin-1].name);
+        delay(300);
+      }
+
     }
 
-    // Stoppen?
-    if (KnopStopOS.pushed()) {
+    // OS Stoppen?
+    if (KnopStopOS.pushed()){
       endwin();
       break;
     };
@@ -126,70 +161,54 @@ void OsThread::setup(int programs, std::vector <std::string> Namen){
  wmove(pWin2, 2, 1);
  whline(pWin2, '-', 58);
  wrefresh(pWin2);
+
  // Maak een sub window voor de tekst aan, en print hier prog1.txt op
  textwin = derwin(pWin2, 20, 58, 4, 1);
+ labelwin = derwin(pWin2, 1, 20, 1, 2);
  
   // Maak de aantal programma's aan, afhankelijk van hoeveel arguments je hebt gehad. 
   for(int i = 1; i < programs+1; i++){
 
     string Mystring = Namen[i-1];
+    WINDOW *c = NULL;
 
-    if (i == 1){
-        Prog1 = newwin(height, width, starty, startx);
-        box(Prog1, 0, 0);
-        mvwprintw(Prog1, 1, 2, "%s", Mystring.c_str());
-        wrefresh(Prog1);
-    }
-
-    if (i == 2){
-        Prog2 = newwin(height, width, starty, startx);
-        box(Prog2, 0, 0);
-        mvwprintw(Prog2, 1, 2, "%s", Mystring.c_str());
-        wrefresh(Prog2);
-    }
-
-    if (i == 3){
-        Prog3 = newwin(height, width, starty, startx);
-        box(Prog3, 0, 0);
-        mvwprintw(Prog3, 1, 2, "%s", Mystring.c_str());
-        wrefresh(Prog3);
-    }
-
-    if (i == 4){
-        Prog4 = newwin(height, width, starty, startx);
-        box(Prog4, 0, 0);
-        mvwprintw(Prog4, 1, 2, "%s", Mystring.c_str());
-        wrefresh(Prog4);
-    }
-
-    if (i == 5){
-        Prog5 = newwin(height, width, starty, startx);
-        box(Prog5, 0, 0);
-        mvwprintw(Prog5, 1, 2, "%s", Mystring.c_str());
-        wrefresh(Prog5);
-    }
+    switch (i){
+      case 1:
+          c = Prog1 = newwin(height, width, starty, startx);
+        break;
+      case 2:
+          c = Prog2 = newwin(height, width, starty, startx);
+        break;
+      case 3:
+          c = Prog3 = newwin(height, width, starty, startx);
+        break;
+      case 4:
+          c = Prog4 = newwin(height, width, starty, startx);
+        break;
+      case 5:
+          c = Prog5 = newwin(height, width, starty, startx);
+        break;
+    }  
+    
+    mvwprintw(c, 1, 2, "%s", Mystring.c_str());
+    box(c, 0, 0);
+    wrefresh(c);
     starty = starty + 4;
   }
 
 }
 
-int OsThread::activate(int Window, std::vector <std::string> Namen){
-    
-  string dastring = Namen[Window-1];
-
-  const char* char_arr = dastring.c_str();
-  pFile = fopen(char_arr, "r");  
-
-  char sBuffer[59];
-
+int OsThread::activate(int Window, std::string Naam, FILE *bFile){
+ 
   // Verwijderd laatste text file en zet het op het scherm
   werase(textwin);
-  while(feof(pFile) == 0){
-   fgets(sBuffer, 56, pFile);
-   wprintw(textwin, "%s", sBuffer);
+  while(feof(bFile) == 0){
+    fgets(sBuffer, 56, bFile);
+    wprintw(textwin, "%s", sBuffer);
   }
   wrefresh(textwin);
-
+  fseek(bFile, 0, SEEK_SET);
+   
   WINDOW* a;
   switch (Window){
       case 1:
@@ -208,16 +227,16 @@ int OsThread::activate(int Window, std::vector <std::string> Namen){
         a = Prog5;
         break;
   }
-    mvwprintw(a, 1, 2, "%s <-", char_arr);
+    mvwprintw(a, 1, 2, "%s <-", Naam.c_str());
     wrefresh(a);
-    mvwprintw(pWin2, 1, 2, "%s", char_arr);
+    mvwprintw(pWin2, 1, 2, "%s", Naam.c_str());
     wrefresh(pWin2);
     return Window;
 }
 
-void OsThread::deactivate(int Window, int ActiveWin, std::vector <std::string> Namen){
-  string dastring = Namen[Window-1];
-  const char* char_arr = dastring.c_str();
+void OsThread::deactivate(int Window, int ActiveWin, std::string Naam){
+
+  const char* char_arr = Naam.c_str();
 
   WINDOW* a;
   switch (Window){
@@ -241,10 +260,11 @@ void OsThread::deactivate(int Window, int ActiveWin, std::vector <std::string> N
   mvwprintw(a, 1, 2, "%s   ", char_arr);
   wrefresh(a);
 
-  if (Window == ActiveWin){
-      werase(textwin);
-      wrefresh(textwin);
-  }
+
+  werase(textwin);
+  werase(labelwin);
+  wrefresh(textwin);
+  wrefresh(labelwin);
 }
 
 void OsThread::CursUp(int MaxWin){
@@ -281,4 +301,3 @@ void OsThread::CursDown(){
   wrefresh(pWin1);
 
 }
-
