@@ -23,11 +23,7 @@ OsThread::OsThread() {
   pthread_attr_setdetachstate(&oAttr_, PTHREAD_CREATE_JOINABLE);
 
   // Maak de thread zelf en koppel de class instantie via het dataveld
-  int nRet = pthread_create(&oThread_, &oAttr_, thread, (void*)this); 
-  if (nRet > 0) {
-    printf("OsThread kon niet gemaakt worden!\n");
-    return;
-  };
+  int nRet = pthread_create(&oThread_, &oAttr_, thread, (void*)this);
 };
 
 OsThread::~OsThread() {

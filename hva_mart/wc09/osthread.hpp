@@ -16,10 +16,12 @@
   #include <ncurses.h>
   #include <thread>
   #include "hwlayer.hpp"
-  #include "knop.hpp"
-  #include "led.hpp"
+  #include "hardware.hpp"
 
   #define MAX_INVOER 100
+
+  void printDC();
+  void printLED();
 
   // De OS thread hardware laag class
   class OsThread {
@@ -30,7 +32,8 @@
       void setup(int programs, std::vector <std::string> Namen);
       void run(int argc, char** Namen);
       void deactivate(int Window, int ActiveWin, std::string Naam);
-      int activate(int Window, std::string Naam, FILE *bFile);
+      int activateFile(int Window, std::string Naam, FILE *bFile);
+      int activateHard(int Window, std::string Naam);
       void CursUp(int MaxWin);
       void CursDown();
       std::vector <std::string> oScript;      

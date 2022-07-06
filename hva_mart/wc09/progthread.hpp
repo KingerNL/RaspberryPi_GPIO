@@ -13,6 +13,8 @@
       ~ProgThread();
       void start();
       void stop();
+      void LEDProg();
+      void DCProg();
       static void* PThread(void *ptr);
       std::string name;
       bool staat = 0;
@@ -26,6 +28,8 @@
       
       Knop KnopStopProg;
       Knop KnopStopOS;
+      Knop KnopToggle;
+      Knop Knopswitch;
 
       pthread_attr_t oAttr_;
   };

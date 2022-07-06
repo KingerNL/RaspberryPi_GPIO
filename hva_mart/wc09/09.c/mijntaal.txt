@@ -1,7 +1,0 @@
-label barf
-wait 500
-led yellow on
-wait 500
-led yellow off
-knop afsluiten
-jump barf

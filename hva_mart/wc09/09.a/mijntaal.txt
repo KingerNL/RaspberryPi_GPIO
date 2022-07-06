@@ -1,6 +1,0 @@
-label barf
-led red on
-wait 1000
-led red off
-wait 1000
-jump barf

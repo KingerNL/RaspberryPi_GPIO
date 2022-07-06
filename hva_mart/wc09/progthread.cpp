@@ -5,16 +5,24 @@ using namespace std;
 
 
 ProgThread::ProgThread(){
-  KnopStopOS.init(RPI_BPLUS_GPIO_J8_08);   // (wit)
-  KnopStopProg.init(RPI_BPLUS_GPIO_J8_18);  // linkerste button
+  KnopStopOS.init(RPI_BPLUS_GPIO_J8_08);
+  KnopStopProg.init(RPI_BPLUS_GPIO_J8_18);
+
+  KnopToggle.init(RPI_BPLUS_GPIO_J8_38);
+  Knopswitch.init(RPI_BPLUS_GPIO_J8_40);
 
   oLed1_.init(RPI_BPLUS_GPIO_J8_11);
   oLed2_.init(RPI_BPLUS_GPIO_J8_15);
   oLed3_.init(RPI_BPLUS_GPIO_J8_13);
+
+  // DC1.init(RPI_BPLUS_GPIO_J8_16);
+  // DC2.init(RPI_BPLUS_GPIO_J8_18);
 }
 
 ProgThread::~ProgThread(){
-    
+    oLed1_.off();
+    oLed2_.off();
+    oLed3_.off();
 }
 
 void ProgThread::start(){
@@ -42,16 +50,23 @@ void ProgThread::stop(){
 
 void* ProgThread::PThread(void *ptr){
     
-ProgThread *pThis;
+    ProgThread *pThis;
     pThis = (ProgThread*)ptr;
     while (1) {
-        if (pThis->KnopStopProg.pushed()){
-            break;
-        }
-        else if (pThis->KnopStopOS.pushed()){
-            break;
+        if (pThis->KnopStopProg.pushed() || pThis->KnopStopOS.pushed()) break;
+        
+        else if (pThis->KnopToggle.pushed()){
+            pThis->oLed1_.on();
         }
     }
-    
     return 0;
+}
+
+void ProgThread::LEDProg(){
+    oLed1_.on();
+    oLed2_.on();
+}
+
+void ProgThread::DCProg(){
+    oLed3_.on();
 }
