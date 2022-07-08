@@ -6,6 +6,7 @@
 // GPIO: 3V3 02 03 04  G 17 27 22 3V3 10 09 11  G IDSD 05 06 13 19 26  G
 
 #include "hardware.hpp"
+#include <iostream>
 
 //LED
 
@@ -19,9 +20,11 @@ void Led::VerranderLed(){
 
     if (bcm2835_gpio_lev(nPin_) == HIGH){
         bcm2835_gpio_write(nPin_, LOW);
+        return;
     }
     if (bcm2835_gpio_lev(nPin_) == LOW){
         bcm2835_gpio_write(nPin_, HIGH);
+        return;
     }
 };                      
 
@@ -72,22 +75,18 @@ DC::~DC(){
 
 };
 
-void DC::init(int nPin1, int nPin2){
+void DC::init(int nPin){
 
-  nPin1_ = nPin1;
-  nPin2_ = nPin2;
+  nPin_ = nPin;
 
-  bcm2835_gpio_fsel(nPin1_, BCM2835_GPIO_FSEL_OUTP);
-  bcm2835_gpio_fsel(nPin2_, BCM2835_GPIO_FSEL_OUTP);
+  bcm2835_gpio_fsel(nPin_, BCM2835_GPIO_FSEL_OUTP);
 
 };
 
 void DC::DCaan(){
-  bcm2835_gpio_write(nPin1_, HIGH);
-  bcm2835_gpio_write(nPin2_, LOW);
+  bcm2835_gpio_write(nPin_, HIGH);
 };
 
 void DC::DCuit(){
-  bcm2835_gpio_write(nPin1_, LOW);
-  bcm2835_gpio_write(nPin2_, LOW);
+  bcm2835_gpio_write(nPin_, LOW);
 };

@@ -25,6 +25,7 @@ private:
     int nPin_;
 };
 
+// De Led class
 class Led {
     public:
         Led();
@@ -38,17 +39,17 @@ class Led {
         int nPin_;
 };
 
+// De DC-MOTOR class
 class DC {
     public:
         DC();
         ~DC();
-        void init(int nPin1, int nPin2);
+        void init(int nPin);
         void DCaan();
         void DCuit();
 
     private:
-        int nPin1_;
-        int nPin2_;
+        int nPin_;
 };
 
 #endif // _KNOP_HPP_

@@ -1,7 +1,7 @@
 // 5.c hwlayer
 //
-// g++ -lncurses -pthread -o hwlayer hwlayer.cpp progthread.cpp osthread.cpp knop.cpp led.cpp -lbcm2835
-// ./hwlayer
+// g++ -lncurses -pthread -o hwlayer hwlayer.cpp progthread.cpp osthread.cpp hardware.cpp -lbcm2835
+// ./hwlayer Lorem.txt file2.txt Stickman.txt file4.txt ditisgeenfile.txt
 
 #include "hwlayer.hpp"
 using namespace std;

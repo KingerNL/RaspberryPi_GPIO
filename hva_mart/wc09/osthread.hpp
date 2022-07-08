@@ -20,8 +20,7 @@
 
   #define MAX_INVOER 100
 
-  void printDC();
-  void printLED();
+
 
   // De OS thread hardware laag class
   class OsThread {
@@ -36,6 +35,8 @@
       int activateHard(int Window, std::string Naam);
       void CursUp(int MaxWin);
       void CursDown();
+      void printDC();
+      void printLED();
       std::vector <std::string> oScript;      
 
     private:
@@ -52,7 +53,9 @@
       Knop KnopDown;
       Knop KnopStartProg;
       Knop KnopStopProg;
-      
+      Knop KnopToggle;
+      Knop Knopswitch;
+
       void delay(long nMSec);
       static void *thread(void *pThreadData);
 
